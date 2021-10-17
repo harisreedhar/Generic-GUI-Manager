@@ -1,2 +1,2 @@
 # Generic-GUI-Manager
- Generic gui manager for ai image based projects
+Generic gui manager for commandline based python projects 
