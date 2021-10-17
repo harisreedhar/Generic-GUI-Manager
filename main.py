@@ -1,6 +1,6 @@
+import json
 import subprocess
 import tkinter as tk
-from config import projects
 from tkinter import filedialog
 
 def createInput(frame, index=0, name="STRING", type=None, value=None):
@@ -29,54 +29,66 @@ class App:
         root.title("GUI Manager")
         self.fields = []
 
+        with open('config.json') as json_file:
+            self.projects = json.load(json_file)
+
         frame = tk.Frame(root, relief="groove")
+
         label = tk.Label(frame, text="Select Project")
         label.grid(row=0, column=0)
+
         self.currentProjectName = tk.StringVar(frame)
-        self.currentProjectName.set(list(projects.keys())[0])
+        self.currentProjectName.set(list(self.projects.keys())[0])
         self.currentProjectName.trace("w", self.setCurrentProject)
-        optionMenu = tk.OptionMenu(frame, self.currentProjectName, *projects.keys())
+        optionMenu = tk.OptionMenu(frame, self.currentProjectName, *self.projects.keys())
         optionMenu.grid(row=0, column=1)
-        runButton = tk.Button(frame, bg="#424949", fg="#fff", activebackground="#cd6155", activeforeground="#fff", width=20)
+
+        runButton = tk.Button(frame, activebackground="#424949", fg="#fff", bg="#cd6155", activeforeground="#fff", width=20)
         runButton["text"] = 'RUN'
         runButton["command"] = self.runCommand
         runButton.grid(row=0, column=2, padx=5)
+
         frame.pack(padx=10,pady=(20,0))
 
         fileFrame = tk.LabelFrame(root, text=" Path ", relief="groove")
+
         self.envPath= tk.StringVar()
         envField = tk.Entry(fileFrame, textvariable=self.envPath, width=60)
         envField.grid(row=0, column=1, padx=(0,5), pady=(5,5))
+
         button = tk.Button(fileFrame, width=15, text="Python Environment")
         button["command"] = lambda: self.envPath.set(filedialog.askopenfilename(initialdir=self.currentProject['python path'], title="Select file"))
         button.grid(row=0, column=0, padx=(5,5), pady=(5,5))
+
         self.filePath= tk.StringVar()
         fileField = tk.Entry(fileFrame, textvariable=self.filePath, width=60)
         fileField.grid(row=1, column=1, padx=(0,5), pady=(5,5))
+
         button = tk.Button(fileFrame, width=15, text="File to Execute")
         button["command"] = lambda: self.filePath.set(filedialog.askopenfilename(initialdir=self.currentProject['file path'], title="Select file"))
         button.grid(row=1, column=0, padx=(5,5), pady=(5,5))
+
         fileFrame.pack(fill="both", expand="yes", padx=10, pady=10)
 
         self.setCurrentProject()
 
     def setCurrentProject(self, *args):
         self.removeFrame()
-        self.currentProject = projects[self.currentProjectName.get()]
+        self.currentProject = self.projects[self.currentProjectName.get()]
         self.createInputs()
         self.envPath.set(self.currentProject['python path'])
         self.filePath.set(self.currentProject['file path'])
 
     def createInputs(self):
         self.argFrame = tk.LabelFrame(root, text=" Arguments ", relief="groove")
-        for item in self.currentProject['inputs']:
-            self.fields.append(createInput(self.argFrame, **item))
+        for i, item in enumerate(self.currentProject['inputs']):
+            self.fields.append(createInput(self.argFrame, index=i, **item))
         self.argFrame.pack(fill="both", expand="yes", padx=10, pady=10)
 
     def generateCommand(self):
         fullCommand = self.envPath.get()
         fullCommand += " " + self.filePath.get()
-        for i, command in enumerate(self.currentProject['splitted command']):
+        for i, command in enumerate(self.currentProject['arguments']):
             fullCommand += " " + command + " " + self.fields[i].get() + " "
         return fullCommand
 
@@ -88,7 +100,7 @@ class App:
 
     def runCommand(self):
         command = self.generateCommand()
-        path = self.currentProject['project directory']
+        path = self.currentProject['project path']
         subprocess.run(f"cd {path} && {command}", shell=True, stdout=True)
 
 if __name__ == "__main__":
