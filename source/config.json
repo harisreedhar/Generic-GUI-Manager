@@ -2,7 +2,7 @@
     "Project 1":{
         "project path": "",
         "file path": "",
-        "python path": "",
+        "python path": "python",
         "arguments": [],
         "inputs":[]
     },
@@ -10,7 +10,7 @@
     "Project 2":{
         "project path": "",
         "file path": "",
-        "python path": "",
+        "python path": "python",
         "arguments": [],
         "inputs":[]
     }

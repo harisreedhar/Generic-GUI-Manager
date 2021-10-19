@@ -2,7 +2,7 @@
     "Calculator":{
         "project path": ".",
         "file path": "calc.py",
-        "python path": "",
+        "python path": "python",
         "arguments": [
             "--a",
             "--b",

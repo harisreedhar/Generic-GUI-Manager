@@ -36,7 +36,7 @@ class App:
         frame = tk.Frame(root, relief="groove")
 
         label = tk.Label(frame, text="Select Project")
-        label.grid(row=0, column=0)
+        label.grid(row=0, column=0, sticky=tk.E)
 
         self.currentProjectName = tk.StringVar(frame)
         self.currentProjectName.set(list(self.projects.keys())[0])
@@ -49,7 +49,12 @@ class App:
         runButton["command"] = self.runCommand
         runButton.grid(row=0, column=2, padx=5)
 
-        frame.pack(padx=10,pady=(20,0))
+        self.inProjectDir = tk.BooleanVar(value=True)
+        inProjectDirButton = tk.Checkbutton(frame, variable=self.inProjectDir)
+        inProjectDirButton["text"] = "Run in project directory"
+        inProjectDirButton.grid(row=1, column=2, padx=2)
+
+        frame.pack(padx=10,pady=(10,0))
 
         fileFrame = tk.LabelFrame(root, text=" Path ", relief="groove")
 
@@ -69,7 +74,7 @@ class App:
         fileButton["command"] = lambda: self.filePath.set(filedialog.askopenfilename(initialdir=self.currentProject['file path'], title="Select file"))
         fileButton.grid(row=1, column=0, padx=(5,5), pady=(5,5))
 
-        fileFrame.pack(fill="both", expand="yes", padx=10, pady=10)
+        fileFrame.pack(fill="both", expand="yes", padx=10, pady=5)
 
         self.setCurrentProject()
 
@@ -88,7 +93,6 @@ class App:
 
     def generateCommand(self):
         env = self.envPath.get()
-        if env == "": env = "python"
         command = env + " " + self.filePath.get()
         for i, arg in enumerate(self.currentProject['arguments']):
             value = self.fields[i].get()
@@ -103,7 +107,7 @@ class App:
 
     def runCommand(self):
         command = self.generateCommand()
-        path = self.currentProject['project path']
+        path = self.currentProject['project path'] if self.inProjectDir.get() else "."
         subprocess.run(f"cd {path} && {command}", shell=True, stdout=True)
 
 if __name__ == "__main__":
