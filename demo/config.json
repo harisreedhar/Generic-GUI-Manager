@@ -1,0 +1,17 @@
+{
+    "Calculator":{
+        "project path": ".",
+        "file path": "calc.py",
+        "python path": "",
+        "arguments": [
+            "--a",
+            "--b",
+            "--op"
+        ],
+        "inputs":[
+            {"name":"a", "type":"STRING", "value":"5"},
+            {"name":"b", "type":"STRING", "value":"10"},
+            {"name":"Operation", "type":"STRING", "value":"sum"}
+        ]
+    }
+}

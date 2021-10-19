@@ -27,10 +27,11 @@ def createInput(frame, index=0, name="STRING", type=None, value=None):
 class App:
     def __init__(self, root):
         root.title("GUI Manager")
-        self.fields = []
 
         with open('config.json') as json_file:
             self.projects = json.load(json_file)
+
+        self.fields = []
 
         frame = tk.Frame(root, relief="groove")
 
@@ -56,17 +57,17 @@ class App:
         envField = tk.Entry(fileFrame, textvariable=self.envPath, width=60)
         envField.grid(row=0, column=1, padx=(0,5), pady=(5,5))
 
-        button = tk.Button(fileFrame, width=15, text="Python Environment")
-        button["command"] = lambda: self.envPath.set(filedialog.askopenfilename(initialdir=self.currentProject['python path'], title="Select file"))
-        button.grid(row=0, column=0, padx=(5,5), pady=(5,5))
+        envButton = tk.Button(fileFrame, width=15, text="Python Environment")
+        envButton["command"] = lambda: self.envPath.set(filedialog.askopenfilename(initialdir=self.currentProject['python path'], title="Select file"))
+        envButton.grid(row=0, column=0, padx=(5,5), pady=(5,5))
 
         self.filePath= tk.StringVar()
         fileField = tk.Entry(fileFrame, textvariable=self.filePath, width=60)
         fileField.grid(row=1, column=1, padx=(0,5), pady=(5,5))
 
-        button = tk.Button(fileFrame, width=15, text="File to Execute")
-        button["command"] = lambda: self.filePath.set(filedialog.askopenfilename(initialdir=self.currentProject['file path'], title="Select file"))
-        button.grid(row=1, column=0, padx=(5,5), pady=(5,5))
+        fileButton = tk.Button(fileFrame, width=15, text="File to Execute")
+        fileButton["command"] = lambda: self.filePath.set(filedialog.askopenfilename(initialdir=self.currentProject['file path'], title="Select file"))
+        fileButton.grid(row=1, column=0, padx=(5,5), pady=(5,5))
 
         fileFrame.pack(fill="both", expand="yes", padx=10, pady=10)
 
@@ -86,11 +87,13 @@ class App:
         self.argFrame.pack(fill="both", expand="yes", padx=10, pady=10)
 
     def generateCommand(self):
-        fullCommand = self.envPath.get()
-        fullCommand += " " + self.filePath.get()
-        for i, command in enumerate(self.currentProject['arguments']):
-            fullCommand += " " + command + " " + self.fields[i].get() + " "
-        return fullCommand
+        env = self.envPath.get()
+        if env == "": env = "python"
+        command = env + " " + self.filePath.get()
+        for i, arg in enumerate(self.currentProject['arguments']):
+            value = self.fields[i].get()
+            command = " ".join([command, arg, value])
+        return command
 
     def removeFrame(self):
         if hasattr(self, 'argFrame'):
