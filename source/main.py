@@ -42,7 +42,7 @@ def createInput(frame, index=0, name="STRING", type=None, value=None):
 
 class App:
     def __init__(self, root):
-        root.title("GUI Manager")
+        root.title("Py-cli2gui")
 
         with open('config.json') as json_file:
             self.projects = json.load(json_file)
