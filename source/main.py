@@ -15,10 +15,43 @@ class Theme:
     buttonWidth = 18
     fieldWidth = 60
 
+# https://stackoverflow.com/questions/4266566/stardand-context-menu-in-python-tkinter-text-widget-when-mouse-right-button-is-p
+def rClicker(e):
+    try:
+        def rClick_Copy(e, apnd=0):
+            e.widget.event_generate('<Control-c>')
+        def rClick_Cut(e):
+            e.widget.event_generate('<Control-x>')
+        def rClick_Paste(e):
+            e.widget.event_generate('<Control-v>')
+        e.widget.focus()
+        nclst=[
+               (' Cut', lambda e=e: rClick_Cut(e)),
+               (' Copy', lambda e=e: rClick_Copy(e)),
+               (' Paste', lambda e=e: rClick_Paste(e)),
+               ]
+        rmenu = tk.Menu(None, tearoff=0, takefocus=0)
+        rmenu.config(bg=Theme.colorA_2, fg=Theme.colorB_2, activebackground=Theme.colorB_3)
+        for (txt, cmd) in nclst:
+            rmenu.add_command(label=txt, command=cmd)
+        rmenu.tk_popup(e.x_root+40, e.y_root+10,entry="0")
+    except tk.TclError:
+        pass
+    return "break"
+
+def rClickbinder(r):
+    try:
+        for b in [ 'Text', 'Entry', 'Listbox', 'Label']: #
+            r.bind_class(b, sequence='<Button-3>',
+                         func=rClicker, add='')
+    except tk.TclError:
+        pass
+
 def createInput(frame, index=0, name="STRING", type=None, value=None):
     fieldText = tk.StringVar()
     field = tk.Entry(frame, textvariable=fieldText, width=Theme.fieldWidth)
     field.config(highlightthickness=0, bg=Theme.colorA_3, fg=Theme.colorB_4)
+    field.bind('<Button-3>',rClicker, add='')
     field.grid(row=index, column=1, padx=(0,5), pady=(5,5))
     if value is not None: fieldText.set(value)
 
@@ -56,12 +89,12 @@ class App:
         self.currentProjectName.set(list(self.projects.keys())[0])
         self.currentProjectName.trace("w", self.setCurrentProject)
         optionMenu = tk.OptionMenu(frame, self.currentProjectName, *self.projects.keys())
-        optionMenu.config(bg=Theme.colorB_2, fg=Theme.colorA_2, highlightthickness=0, activebackground=Theme.colorB_3)
+        optionMenu.config(bg=Theme.colorA_2, fg=Theme.colorB_2, highlightthickness=0, activebackground=Theme.colorB_3)
         optionMenu["menu"].config(bg=Theme.colorA_2, fg=Theme.colorB_2, activebackground=Theme.colorB_3)
         optionMenu["font"] = _font
         optionMenu.grid(row=0, column=0)
 
-        runButton = tk.Button(frame, fg="#fff", bg=Theme.colorB_1, activebackground=Theme.colorB_3, width=Theme.buttonWidth)
+        runButton = tk.Button(frame, fg=Theme.colorB_2, bg=Theme.colorA_2, activebackground=Theme.colorB_1, width=Theme.buttonWidth)
         runButton["text"] = 'RUN'
         runButton["command"] = self.runCommand
         runButton["font"] = _font
@@ -81,7 +114,7 @@ class App:
         self.projectDirectory = createInput(fileFrame, index=0, name="Project directory", type="DIRECTORY")
         self.filePath = createInput(fileFrame, index=1, name="File path", type="FILE")
         self.pythonPath = createInput(fileFrame, index=2, name="Python path", type="FILE")
-        fileFrame.pack(fill="both", expand="yes", padx=10, pady=5)
+        fileFrame.pack(fill="both", expand="yes", padx=10, pady=0)
 
         self.setCurrentProject()
 
