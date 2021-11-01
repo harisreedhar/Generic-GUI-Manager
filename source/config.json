@@ -1,17 +1,41 @@
 {
-    "Project 1":{
-        "project path": "",
-        "file path": "",
-        "python path": "python",
-        "arguments": [],
-        "inputs":[]
+    "My Project 1":{
+        "description": "This is a sample project 1",
+        "project path": "<-- path to your project -->",
+        "file path": "<-- path to executable file -->",
+        "python path": "<-- path to your python environment -->",
+        "arguments": [
+            "--argument-1",
+            "--argument-2",
+            "--argument-3",
+            ""
+        ],
+        "inputs": [
+            {"name":"Argument 1", "type":"LIST", "value":["A", "B", "C", "D"]},
+            {"name":"Argument 2", "type":"FILE", "value":"<-- default file path- ->"},
+            {"name":"Argument 3", "type":"DIRECTORY", "value":"<-- default directory -->"},
+            {"name":"Other Arguments", "type":"STRING", "value":"--argument-4 E --argument-5 F"}
+        ],
+        "pre_commands":["echo commands to execute before executing file"],
+        "post_commands":["echo commands to execute after executing file"]
     },
 
-    "Project 2":{
-        "project path": "",
-        "file path": "",
-        "python path": "python",
-        "arguments": [],
-        "inputs":[]
+    "My Project 2":{
+        "description": "This is a sample project 2",
+        "project path": "<-- path to your project -->",
+        "file path": "<-- path to executable file -->",
+        "python path": "<-- path to your python environment -->",
+        "arguments": [
+            "--A",
+            "--B",
+            "--C"
+        ],
+        "inputs": [
+            {"name":"A", "type":"STRING", "value":""},
+            {"name":"B", "type":"FILE", "value":"<-- default file path -->"},
+            {"name":"C", "type":"LIST", "value":["1", "2", "3"]}
+        ],
+        "pre_commands":null,
+        "post_commands":null
     }
 }
