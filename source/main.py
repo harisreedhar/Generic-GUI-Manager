@@ -1,4 +1,6 @@
+import re
 import json
+import platform
 import subprocess
 import tkinter as tk
 from tkinter import filedialog, font as tkFont
@@ -16,7 +18,7 @@ class Theme:
         self.b4 = "#98c379"
         self.fieldWidth = 60
         self.labelWidth = 16
-        self.runButtonWidth = 18
+        self.runButtonWidth = 8
         self.fontA = tkFont.Font(family='helvetica', size=13)
         self.fontB = tkFont.Font(family='helvetica', size=14, weight=tkFont.BOLD)
         self.fontC = tkFont.Font(family='helvetica', size=12, slant='italic')
@@ -45,7 +47,9 @@ class App:
         self.fields = []
         self.frameA()
         self.frameB()
+        self.dynamicFrame = tk.LabelFrame(self.root, text=" Arguments ", relief="groove")
         self.setCurrentProject()
+        self.frameD()
 
     def frameA(self):
         frame =  tk.Frame(self.root, relief="groove")
@@ -59,22 +63,10 @@ class App:
         optionMenu["font"] = self.theme.fontB
         optionMenu.grid(row=0, column=0)
 
-        runButton = tk.Button(frame, width=self.theme.runButtonWidth)
-        runButton.config(**self.theme.settings.get('run_button'))
-        runButton["text"] = 'RUN'
-        runButton["command"] = self.runCommand
-        runButton["font"] = self.theme.fontB
-        runButton.grid(row=0, column=1, padx=6)
-
         self.description = tk.Label(frame, text="Face swaping project")
         self.description.config(**self.theme.settings.get('label'))
         self.description["font"] = self.theme.fontC
         self.description.grid(row=1, column=0, padx=2, pady=2)
-
-        checkButton = tk.Checkbutton(frame, variable=self.runInProjectPath)
-        checkButton["text"] = "Run in project directory"
-        checkButton.config(**self.theme.settings.get('check_button'))
-        checkButton.grid(row=1, column=1, sticky='NW')
 
         frame.pack(padx=6, pady=(12,0))
 
@@ -84,21 +76,35 @@ class App:
         self.projectPath = self.createInput(frame, index=0, name="Project path", type="DIRECTORY")
         self.filePath = self.createInput(frame, index=1, name="File path", type="FILE")
         self.pythonPath = self.createInput(frame, index=2, name="Python path", type="FILE")
-        # self.preCommands = self.createInput(frame, index=3, name="Pre command", type="STRING", theme=self.theme)
-        # self.postCommands = self.createInput(frame, index=4, name="Post command", type="STRING", theme=self.theme)
         frame.pack(fill="y", expand="yes", padx=6, pady=(0,6))
 
     def frameC(self):
-        self.dynamicFrame = tk.LabelFrame(self.root, text=" Arguments ", relief="groove")
         self.dynamicFrame.config(**self.theme.settings.get('label_frame'))
         for i, item in enumerate(self.currentProject['inputs']):
             self.fields.append(self.createInput(self.dynamicFrame, index=i, **item))
         self.dynamicFrame.pack(fill="y", expand="yes", padx=6, pady=6)
 
+    def frameD(self):
+        frame =  tk.Frame(self.root, relief="groove")
+        frame.config(**self.theme.settings.get('frame'))
+
+        checkButton = tk.Checkbutton(frame, variable=self.runInProjectPath)
+        checkButton["text"] = "Run in project directory"
+        checkButton.config(**self.theme.settings.get('check_button'))
+        checkButton.grid(row=0, column=0, sticky='E')
+
+        runButton = tk.Button(frame, width=self.theme.runButtonWidth)
+        runButton.config(**self.theme.settings.get('run_button'))
+        runButton["text"] = 'RUN'
+        runButton["command"] = self.runCommand
+        runButton["font"] = self.theme.fontB
+        runButton.grid(row=0, column=1, padx=6, sticky='E')
+
+        frame.pack(padx=24, pady=(6,12), side=tk.RIGHT)
+
     def removeFrame(self):
-        if hasattr(self, 'dynamicFrame'):
-            self.dynamicFrame.pack_forget()
-            self.dynamicFrame.destroy()
+        for widget in self.dynamicFrame.winfo_children():
+            widget.destroy()
         self.fields.clear()
 
     def setCurrentProject(self, *args):
@@ -108,9 +114,9 @@ class App:
         self.projectPath.set(self.currentProject['project path'])
         self.filePath.set(self.currentProject['file path'])
         self.pythonPath.set(self.currentProject['python path'])
-        self.description.configure(text="( " + self.currentProject.get('description') + " )")
-        # self.preCommands.set(self.currentProject.get('pre_commands'))
-        # self.postCommands.set(self.currentProject.get('post_commands'))
+        description = self.currentProject.get('description')
+        description = re.sub("(.{100})", "\\1\n", description, 0, re.DOTALL)
+        self.description.configure(text="( " + description + " )")
 
     def getProjects(self, configPath):
         with open(configPath) as json_file:
@@ -140,7 +146,7 @@ class App:
         print("---------------------- Command --------------------------------")
         print(command)
         print("---------------------- Execution started ----------------------")
-        subprocess.run(command, shell=True, stdout=True)
+        subprocess.run(command, shell=platform.system() != 'Windows', stdout=True)
         print("---------------------- Execution ended ------------------------")
 
     # https://stackoverflow.com/questions/4266566/stardand-context-menu-in-python-tkinter-text-widget-when-mouse-right-button-is-p
@@ -216,5 +222,7 @@ if __name__ == "__main__":
     root.config(**theme.settings.get('root'))
     root.option_add("*font", theme.fontA)
     root.resizable(width=False, height=False)
+    #root.rowconfigure(0, weight=1)
+    #root.columnconfigure(0, weight=1)
     app = App(root, theme)
     root.mainloop()
