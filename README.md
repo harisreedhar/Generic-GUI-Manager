@@ -7,4 +7,9 @@ Simple GUI manager for cli based python projects.
 It only requires builtin modules(tkinter, json, re, platform, subprocess). So, standard Python3 install should be enough.
 
 ## Usage
-Edit ``config.json`` file according to your project. Then run ``python3 main.py``.
+````sh
+git clone https://github.com/harisreedhar/Py-cli2gui
+cd Py-cli2gui/source/
+code config.json  # add your project & settings in config.json file
+python3 main.py
+````
